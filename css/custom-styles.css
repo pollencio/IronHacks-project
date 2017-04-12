@@ -1,0 +1,104 @@
+#body {
+  background-color: #f3f3f3;
+}
+
+#header {
+  background-color: #4679b2;
+}
+
+#header {
+  font-family: 'Lobster', cursive;
+  font-size: 4em;
+  padding: 30px;
+}
+
+#map {
+  height: 570px;
+}
+
+#map-menu, #data-menu {
+  padding: 0;
+}
+
+#data-container {
+  height: 100%
+}
+
+h3, h5 {
+  margin: 0;
+}
+
+h1 .library {
+  display: block;
+  font-size: 1.75em;
+  font-weight: bold;
+}
+
+h1 .tagline {
+  font-size: 1em;
+}
+
+.ui.sticky.segment.fixed.top {
+  border-bottom-style: solid;
+  border-bottom-color: rgb(211, 211, 212);
+  border-width: 1px;
+}
+
+.ui.menu>.right.menu {
+  margin: 0 5px;
+}
+
+.ui.menu>.right.menu>.button {
+  border-radius: 0;
+  margin: 0;
+  box-shadow: 0 0 0 0px !important;
+}
+
+.ui.menu>.right.menu>.button>.icon {
+    height: 1em;
+    display: block;
+    font-size: 1.71428571em!important;
+    margin: 0 auto .5rem!important;
+}
+
+.ui.segments:not(.horizontal)>.segment:first-child {
+    border-radius: 0;
+}
+
+.ui.grid>.column:first-child {
+    padding-right: 0;
+}
+
+.ui.grid>.column:last-child {
+    padding-left: 0;
+}
+
+.ui.two.cards {
+    margin-left: -6px;
+}
+
+.ui.card>.image>img, .ui.cards>.card>.image>img {
+    max-height: 150px;
+}
+
+.ui.card.active, .ui.link.cards .card:hover {
+    background: #c2d8ea;
+}
+
+.ui.message>.content>.header {
+    margin-bottom: 7px;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}

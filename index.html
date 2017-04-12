@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Home Finder</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+    <link rel="stylesheet" href="semantic/semantic-ui-calendar/dist/calendar.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/custom-styles.css">
+    <!-- JavaScripts -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="semantic/dist/semantic.min.js"></script>
+    <script src="semantic/semantic-ui-calendar/dist/calendar.min.js"></script>
+    <script src="js/vue.js"></script>
+
+  </head>
+  <body>
+    <div class="ui segments">
+
+      <div class="ui inverted segment" id="header">
+        Find Your Home
+      </div>
+
+      <div class="ui stackable streched grid">
+        <div class="eight wide column" style="right-padding: 0;">
+          <div class="ui sticky segments" id="map-container">
+            <div class="ui segment" id="map-menu">
+              <div class="ui stackable labeled icon secondary menu">
+                <div class="header item">
+                  Compare the Area
+                  <h5>Select the map type <i class="small right arrow icon"></i> </h5>
+                </div>
+                <div class="right menu">
+                  <div class="ui map inverted green button" src=>
+                    <i class="dollar icon"></i>
+                    Price
+                  </div>
+                  <div class="ui map inverted blue button active">
+                    <i class="road icon"></i>
+                    Distance
+                  </div>
+                  <div class="ui map inverted red button">
+                    <i class="protect icon"></i>
+                    Security
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="floating-panel">
+              <input onclick="clearMarkers();" type=button value="Hide Markers">
+              <input onclick="showMarkers();" type=button value="Show All Markers">
+              <input onclick="deleteMarkers();" type=button value="Delete Markers">
+            </div>
+            <div class="ui segment" id="map">
+            </div>
+          </div>
+        </div>
+        <div class="eight wide column" style="left-padding: 0 !important;">
+          <div class="ui segments" id="data-container">
+            <div class="ui sticky segment" id="data-menu">
+              <div class="ui stackable labeled icon secondary menu">
+                <div class="header item">
+                  What do you want to know?
+                  <h5>Select the level of data <i class="small right arrow icon"></i> </h5>
+                </div>
+                <div class="right menu">
+                  <div class="ui data basic button" v-bind:class=buttonsList[0].state v-on:click="activateButton(buttonsList[0])">
+                    <i v-bind:class=buttonsList[0].icon></i> {{ buttonsList[0].text }}
+                  </div>
+                  <div class="ui data basic button" v-bind:class=buttonsList[1].state v-on:click="activateButton(buttonsList[1])">
+                    <i v-bind:class=buttonsList[1].icon></i> {{ buttonsList[1].text }}
+                  </div>
+                  <div class="ui data basic button" v-bind:class=buttonsList[2].state v-on:click="activateButton(buttonsList[2])">
+                    <i v-bind:class=buttonsList[2].icon></i> {{ buttonsList[2].text }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ui segment" style="padding: 30px;">
+              <div v-show="content === 'places'">
+                <div class="ui three link cards">
+                  <data-item v-for="item in placesList" v-bind:data="item"></data-item>
+                </div>
+              </div>
+              <div v-show="content === 'details'">
+                <div v-if="!selectedPlace">
+                  Please select an apartment to see details
+                </div>
+                <div v-else>
+                  <h2 class="ui header"> {{ selectedPlace.name }}
+                    <div class="ui right floated primary button" v-on:click="showVisitWindow(selectedPlace)">
+                      <i class="marker icon"></i> Visit
+                    </div>
+                  </h2><br>
+
+                  <div class="ui relaxed grid">
+                    <div class="nine wide column">
+                      <img class="ui fluid rounded image" v-bind:src=selectedPlace.imageURL>
+                    </div>
+                    <div class="seven wide column">
+                      <!-- <h4>Description</h4> -->
+                      <p>{{ selectedPlace.description }}</p>
+                    </div>
+                  </div><br>
+
+                  <h4 class="ui header"> General details </h4>
+                  <table class="ui definition table">
+                    <tbody>
+                      <tr> <td class="four wide column">Address</td> <td>{{ selectedPlace.address }}</td> </tr>
+                      <tr> <td>Company</td> <td>{{ selectedPlace.company }}</td> </tr>
+                      <tr> <td>Phone</td> <td>{{ selectedPlace.phone }}</td> </tr>
+                      <tr> <td>Type of Property</td> <td>{{ selectedPlace.type }}</td> </tr>
+                      <tr> <td>Community Area</td> <td>{{ selectedPlace.area }}</td> </tr>
+                      <tr class="warning">
+                        <td>Price <i class="info circle icon" title="Zestimate price from Zillow API"> </td>
+                        <td>{{ selectedPlace.price }}</td>
+                      </tr>
+                    </tbody>
+                  </table><br>
+
+                  <h4 class="ui header"> Specifications </h4>
+                  <tt-prediction></tt-prediction>
+                  <div class="ui message">
+                    <div class="content">
+                      <div class="header">Ratings <i class="info circle icon" title="Price, distance and security ratings"></i></div>
+                      <div class="ui green progress">
+                        <div class="bar"></div>
+                      </div>
+                      <div class="label">Price Rating</div>
+                      <div class="ui blue progress">
+                        <div class="bar"></div>
+                      </div>
+                      <div class="label">Distance Rating</div>
+                      <div class="ui red progress">
+                        <div class="bar"></div>
+                      </div>
+                      <div class="label">Security Rating</div>
+                    </div>
+                  </div>
+
+                  <img class="ui right floated image" src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
+                  <br>
+                </div>
+              </div>
+              <div v-show="content === 'statistics'">
+                Statistics
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ui small modal" id="modal">
+      <i class="close icon"></i>
+      <div class="ui header">
+        <h1>When do you want to go?</h1>
+        See the weather and travel time forecasts
+      </div>
+      <div class="content">
+        <div class="ui relaxed centered grid">
+          <div class="nine wide column">
+            <p class="ui teal message">Double-click to select a date</p>
+            <div class="ui calendar" id="calendar"></div>
+          </div>
+          <div class="seven wide column">
+            <div class="description">
+              <h3>{{ selectedDateString() }}</h3><br>
+              <p>
+                <b>Actual position: </b> {{ actualPosition }} <br>
+                <b>Destination: </b> {{ destination }} <br>
+                <tt-prediction></tt-prediction>
+                <weather-forecast v-for="item in selectedDayWeather(weatherList)" v-bind:day="item"></weather-forecast>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="js/script.js"></script>
+    <script src="js/weather.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/map.js"></script>
+
+
+    <script src="http://maps.google.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=visualization&callback=initMap"></script>
+  </body>
+</html>
