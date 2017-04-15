@@ -1,8 +1,11 @@
+var today = new Date();
+
 var xmlhttp = new XMLHttpRequest();
 var url = "https://data.cityofchicago.org/api/views/s6ha-ppgi/rows.json?accessType=DOWNLOAD"
 xmlhttp.open("GET", url, true);
 xmlhttp.send();
 var washedData = [];
+var travelData = [];
 
 xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -11,29 +14,26 @@ xmlhttp.onreadystatechange = function() {
         var json = JSON.parse(text);
 
         for (var i = 0; i<json.data.length; i++) {
-            var dataLine = {
-              name: json.data[i][11],
-              address: json.data[i][12],
-              phone: json.data[i][14],
-              type: json.data[i][10],
-              number: json.data[i][16],
-              area: json.data[i][8],
-              company: json.data[i][15],
-              latitude: json.data[i][19],
-              longitude: json.data[i][20],
-              imageURL: 'https://maps.googleapis.com/maps/api/streetview?' +
-                      'location=' + json.data[i][12] +
-                      '&size=600x300' +
-                      '&key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA',
-              state: '',
-              description: '',
-              price: '',
-              travelData: []
-            };
-            washedData.push(dataLine);
+          var dataLine = {
+            name: json.data[i][11],
+            address: json.data[i][12],
+            phone: json.data[i][14],
+            type: json.data[i][10],
+            number: json.data[i][16],
+            area: json.data[i][8],
+            company: json.data[i][15],
+            latitude: json.data[i][19],
+            longitude: json.data[i][20],
+            imageURL: 'https://maps.googleapis.com/maps/api/streetview?' +
+                    'location=' + json.data[i][12] +
+                    '&size=600x300' +
+                    '&key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA',
+            state: '',
+            description: '',
+            price: ''
+          };
+          washedData.push(dataLine);
         };
-
-        var numberOfPlaces = washedData.length;
     }
 };
 
@@ -46,12 +46,7 @@ Vue.component('data-item', {
       </div>
       <div class="content">
         <div class="header">{{ data.name }}</div>
-        <div class="meta">{{ data.company }}</div>
-        <p>
-          <b>Address: </b>{{ data.address }}<br>
-          <b>Phone: </b>{{ data.phone }}<br>
-          <b>Community Area: </b>{{ data.area }}
-        </p>
+        <p>{{ data.address }}</p>
       </div>
       <div class="ui bottom attached buttons">
         <div class="ui primary button" v-on:click="showVisitWindow(data)"><i class="marker icon"></i> Visit </div>
@@ -76,47 +71,8 @@ Vue.component('data-item', {
           }
         }
         dataContainer.selectedPlace = dataItem;
-      }
-    }
-});
-
-Vue.component('tt-prediction', {
-  props: ['prediction'],
-  template:
-    `<div class="ui message">
-      <div class="content">
-        <div class="header">Travel time and distance <i class="info circle icon" title="Aproximated travel time for the destination and date selected"></i></div>
-        <div class="ui relaxed two column grid">
-          <div class=column>
-            <i class="large car icon"></i> Time<br>
-            <i class="large subway icon"></i> Time<br>
-          </div>
-          <div class=column>
-            <i class="large street view icon"></i> Time<br>
-            <i class="large bicycle icon"></i> Time<br>
-          </div>
-        </div>
-      </div>
-    </div>`,
-    methods: {
-      setTravelData: function (origin, destination, mode, departureTime) {
-        var service = new google.maps.DistanceMatrixService();
-        service.getDistanceMatrix({
-          origins: [origin],
-          destinations: [destination],
-          travelMode: mode,
-          drivingOptions: {
-            departureTime: departureTime
-          }
-        }, callback);
-
-        function callback(response, status) {
-          if (status == 'OK') {
-            var result = response.rows[0].elements[0];
-            this.distance = result.distance.text;
-            this.duration = result.duration.text;
-          }
-        }
+        var location = {lat: parseFloat(dataItem.latitude), lng: parseFloat(dataItem.longitude)};
+        selectMapPlace(location, map);
       }
     }
 });
@@ -125,8 +81,9 @@ var dataContainer = new Vue({
   el: '#data-container',
   data: {
     content: 'places',
-    selectedPlace: '',
     placesList: washedData,
+    selectedPlace: '',
+    selectedTravelData: '',
     buttonsList: [
       {
         name: 'places',

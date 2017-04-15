@@ -1,6 +1,6 @@
 var xmlhttp2 = new XMLHttpRequest();
 var washedData2 = [];
-var url = "https://api.openweathermap.org/data/2.5/forecast/daily?q=chicago&appid=6aa0bdb1f586c5630d60b6237dfce45c&cnt=16";
+var url = "http://api.openweathermap.org/data/2.5/forecast/daily?q=chicago&appid=6aa0bdb1f586c5630d60b6237dfce45c&cnt=16";
 xmlhttp2.open("GET", url, true);
 xmlhttp2.send();
 
@@ -46,7 +46,7 @@ var modal = new Vue({
   el: '#modal',
   data: {
     selectedDate: today,
-    actualPosition: '',
+    actualPosition: '4722 South Justine Street',
     destination: '4444 W. Lawrence Ave.',
     weatherList: washedData2
   },

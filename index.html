@@ -20,12 +20,12 @@
   <body>
     <div class="ui segments">
 
-      <div class="ui inverted segment" id="header">
+      <!-- <div class="ui inverted segment" id="header">
         Find Your Home
-      </div>
+      </div> -->
 
       <div class="ui stackable streched grid">
-        <div class="eight wide column" style="right-padding: 0;">
+        <div class="nine wide column" style="right-padding: 0;">
           <div class="ui sticky segments" id="map-container">
             <div class="ui segment" id="map-menu">
               <div class="ui stackable labeled icon secondary menu">
@@ -34,15 +34,15 @@
                   <h5>Select the map type <i class="small right arrow icon"></i> </h5>
                 </div>
                 <div class="right menu">
-                  <div class="ui map inverted green button" src=>
+                  <div class="ui map inverted green button" id="price-btn">
                     <i class="dollar icon"></i>
                     Price
                   </div>
-                  <div class="ui map inverted blue button active">
+                  <div class="ui map inverted blue button" id="distance-btn">
                     <i class="road icon"></i>
                     Distance
                   </div>
-                  <div class="ui map inverted red button">
+                  <div class="ui map inverted red button" id="security-btn">
                     <i class="protect icon"></i>
                     Security
                   </div>
@@ -58,7 +58,7 @@
             </div>
           </div>
         </div>
-        <div class="eight wide column" style="left-padding: 0 !important;">
+        <div class="seven wide column" style="left-padding: 0 !important;">
           <div class="ui segments" id="data-container">
             <div class="ui sticky segment" id="data-menu">
               <div class="ui stackable labeled icon secondary menu">
@@ -81,7 +81,7 @@
             </div>
             <div class="ui segment" style="padding: 30px;">
               <div v-show="content === 'places'">
-                <div class="ui three link cards">
+                <div class="ui two link cards">
                   <data-item v-for="item in placesList" v-bind:data="item"></data-item>
                 </div>
               </div>
@@ -122,7 +122,21 @@
                   </table><br>
 
                   <h4 class="ui header"> Specifications </h4>
-                  <tt-prediction></tt-prediction>
+                  <div class="ui message">
+                    <div class="content">
+                      <div class="header">Travel time and distance <i class="info circle icon" title="Aproximated travel time from the university to this apartment"></i></div>
+                      <div class="ui relaxed two column grid">
+                        <div class=column>
+                          <i class="large car icon"></i> {{ selectedTravelData }}<br>
+                          <i class="large subway icon"></i> Time<br>
+                        </div>
+                        <div class=column>
+                          <i class="large street view icon"></i> Time<br>
+                          <i class="large bicycle icon"></i> Time<br>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="ui message">
                     <div class="content">
                       <div class="header">Ratings <i class="info circle icon" title="Price, distance and security ratings"></i></div>
@@ -164,16 +178,15 @@
       <div class="content">
         <div class="ui relaxed centered grid">
           <div class="nine wide column">
-            <p class="ui teal message">Double-click to select a date</p>
             <div class="ui calendar" id="calendar"></div>
           </div>
           <div class="seven wide column">
             <div class="description">
+              <p class="ui teal message">Double-click to select a date and see the weather forecast</p>
               <h3>{{ selectedDateString() }}</h3><br>
               <p>
                 <b>Actual position: </b> {{ actualPosition }} <br>
                 <b>Destination: </b> {{ destination }} <br>
-                <tt-prediction></tt-prediction>
                 <weather-forecast v-for="item in selectedDayWeather(weatherList)" v-bind:day="item"></weather-forecast>
             </div>
           </div>
@@ -182,12 +195,13 @@
     </div>
 
 
-    <script src="js/script.js"></script>
-    <script src="js/weather.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/weather.js"></script>
     <script src="js/map.js"></script>
+    <script src="js/script.js"></script>
 
 
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
     <script src="https://maps.google.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=visualization&callback=initMap"></script>
   </body>
 </html>
