@@ -102,3 +102,7 @@ h1 .tagline {
   line-height: 30px;
   padding-left: 10px;
 }
+
+.ui.dropdown {
+  margin-bottom: 20px;
+}

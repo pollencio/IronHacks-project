@@ -34,17 +34,17 @@
                   <h5>Select the map type <i class="small right arrow icon"></i> </h5>
                 </div>
                 <div class="right menu">
+                  <div class="ui map inverted red button" id="security-btn">
+                    <i class="protect icon"></i>
+                    Security
+                  </div>
                   <div class="ui map inverted green button" id="price-btn">
                     <i class="dollar icon"></i>
                     Price
                   </div>
-                  <div class="ui map inverted blue button" id="distance-btn">
+                  <div class="ui map inverted yellow button" id="distance-btn">
                     <i class="road icon"></i>
                     Distance
-                  </div>
-                  <div class="ui map inverted red button" id="security-btn">
-                    <i class="protect icon"></i>
-                    Security
                   </div>
                 </div>
               </div>
@@ -81,6 +81,11 @@
             </div>
             <div class="ui segment" style="padding: 30px;">
               <div v-show="content === 'places'">
+                <select name="Community Area" multiple="" class="ui dropdown">
+                  <option value=""><i class="male icon"></i>Community Area</option>
+                  <option value="austin">Austin</option>
+                  <option value="albany park">Albany Park</option>
+                </select>
                 <div class="ui two link cards">
                   <data-item v-for="item in placesList" v-bind:data="item"></data-item>
                 </div>
@@ -115,7 +120,14 @@
                       <tr> <td>Type of Property</td> <td>{{ selectedPlace.type }}</td> </tr>
                       <tr> <td>Community Area</td> <td>{{ selectedPlace.area }}</td> </tr>
                       <tr class="warning">
-                        <td>Price <i class="info circle icon" title="Zestimate price from Zillow API"> </td>
+                        <td>
+                          Price
+                          <i class="info circle icon" title="Zestimate price from Zillow API">
+                          <div class="ui popup">
+                            <div class="header">Security Rating</div>
+                            <div class="ui star rating" data-rating="3" data-max-rating="5"></div>
+                          </div>
+                        </td>
                         <td>{{ selectedPlace.price }}</td>
                       </tr>
                     </tbody>
@@ -201,6 +213,7 @@
     <script src="js/script.js"></script>
 
 
+    <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=visualization"></script> -->
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
     <script src="https://maps.google.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=visualization&callback=initMap"></script>
   </body>

@@ -1,7 +1,13 @@
 $(document).on('ready', function() {
 
   $('.ui.sticky').sticky();
-  $('.large.icon').popup();
+
+  $('.ui.rating').rating();
+
+  $('.card').popup({inline: true});
+
+  $('.ui.dropdown').dropdown();
+
 });
 
 $('.ui.map.button').on('click', function() {
@@ -9,13 +15,25 @@ $('.ui.map.button').on('click', function() {
 });
 
 $('#distance-btn').on('click', function() {
-  if (mapCircles[0].map != null) {
-    mapCircles.forEach(function(circle) {
+  if (mapDistanceCircles[0].map != null) {
+    mapDistanceCircles.forEach(function(circle) {
       circle.setMap(null);
     });
   } else {
-    mapCircles.forEach(function(circle) {
+    mapDistanceCircles.forEach(function(circle) {
       circle.setMap(map);
     });
+    map.setZoom(11);
+    centerMap(universityPos, map);
+  }
+});
+
+$('#security-btn').on('click', function() {
+  if (securityHeatmap.map != null) {
+    securityHeatmap.setMap(null);
+  } else {
+    securityHeatmap.setMap(map);
+    centerMap(universityPos, map);
+    map.setZoom(10);
   }
 });

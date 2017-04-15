@@ -127,6 +127,9 @@ var dataContainer = new Vue({
         places.push(location);
       }
       return places;
+    },
+    getPlace: function(location) {
+
     }
   }
 });
