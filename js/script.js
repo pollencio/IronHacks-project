@@ -37,3 +37,6 @@ $('#security-btn').on('click', function() {
     map.setZoom(10);
   }
 });
+
+$('#price-btn').on('click', function() {
+})
