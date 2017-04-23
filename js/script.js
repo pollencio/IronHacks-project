@@ -8,6 +8,13 @@ $(document).on('ready', function() {
 
   $('.ui.dropdown').dropdown();
 
+  // $('#welcome_modal').modal('show');
+
+  // var Zurl = 'http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetSearchResults.htm?zws-id=X1-ZWz199gokqk5xn_7oq0o$address=2114+Bigelow+Ave$citystatezip=Seattle%2C+WA';
+  // var price;
+  // getZillowData(Zurl, price);
+  // console.log(price);
+
 });
 
 $('.ui.map.button').on('click', function() {

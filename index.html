@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
     <link rel="stylesheet" href="semantic/semantic-ui-calendar/dist/calendar.min.css" />
     <link rel="stylesheet" type="text/css" href="css/custom-styles.css">
-    <link rel="stylesheet" type="text/css" href="css/directions-map.css">
+    <link rel="stylesheet" type="text/css" href="css/chart.css">
     <!-- JavaScripts -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.35.1/mapbox-gl.js'></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
@@ -18,6 +18,7 @@
     <script src="semantic/dist/semantic.min.js"></script>
     <script src="semantic/semantic-ui-calendar/dist/calendar.min.js"></script>
     <script src="js/vue.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js"></script>
 
   </head>
   <body>
@@ -28,31 +29,6 @@
       </div> -->
 
       <div class="ui stackable streched grid">
-        <div class="nine wide column" style="right-padding: 0;">
-          <div class="ui sticky segments" id="map-container">
-            <div class="ui segment" id="map-menu">
-              <div class="ui stackable labeled icon secondary menu">
-                <div class="header item">
-                  Compare the Area
-                  <h5>Select the map type <i class="small right arrow icon"></i> </h5>
-                </div>
-                <div class="right menu">
-                  <div class="ui map inverted red button" id="security-btn">
-                    <i class="protect icon"></i> Security
-                  </div>
-                  <div class="ui map inverted green button" id="price-btn">
-                    <i class="dollar icon"></i> Price
-                  </div>
-                  <div class="ui map inverted yellow button" id="distance-btn">
-                    <i class="road icon"></i> Distance
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="ui segment" id="map">
-            </div>
-          </div>
-        </div>
         <div class="seven wide column" style="left-padding: 0 !important;">
           <div class="ui segments" id="data-container">
             <div class="ui sticky segment" id="data-menu">
@@ -70,6 +46,12 @@
                   </div>
                   <div class="ui data basic button" v-bind:class=buttonsList[2].state v-on:click="activateButton(buttonsList[2])">
                     <i v-bind:class=buttonsList[2].icon></i> {{ buttonsList[2].text }}
+                  </div>
+                  <div class="ui inverted red icon button" v-bind:class=buttonsList[3].state v-on:click="activateButton(buttonsList[3])">
+                    <i v-bind:class=buttonsList[3].icon></i>
+                  </div>
+                  <div class="ui inverted green icon button" v-bind:class=buttonsList[4].state v-on:click="activateButton(buttonsList[4])">
+                    <i v-bind:class=buttonsList[4].icon></i>
                   </div>
                 </div>
               </div>
@@ -106,7 +88,6 @@
                     </div>
                   </div><br>
 
-                  <h4 class="ui header"> General details </h4>
                   <table class="ui definition table">
                     <tbody>
                       <tr> <td class="four wide column">Address</td> <td>{{ selectedPlace.address }}</td> </tr>
@@ -128,15 +109,23 @@
                     </tbody>
                   </table><br>
 
-                  <h4 class="ui header"> Specifications </h4>
+                  <!-- <img class="ui right floated image" src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search"> -->
+                  <br>
+                </div>
+              </div>
+              <div v-show="content === 'statistics'">
+                <div v-if="!selectedPlace">
+                  Please select an apartment to see statistics
+                </div>
+                <div v-else>
                   <div class="ui attached message">
                     <div class="header">Travel time and distance <i class="info circle icon" title="Aproximated travel time from the university to this apartment"></i></div>
                   </div>
                   <div class="ui attached fluid segment">
                     <div class="ui relaxed two column grid">
                       <travel-data-item v-for="item in selectedPlace.travelData" v-bind:data="item"></travel-data>
-                      </div>
                     </div>
+                  </div>
                   <div class="ui attached message">
                     <div class="header">Ratings <i class="info circle icon" title="Price, distance and security ratings"></i></div>
                   </div>
@@ -155,21 +144,75 @@
                         <div class="label"><i class="road icon"></i> Distance </div>
                       </div>
                     </div>
-                    <!-- <rating-item v-for="item in selectedPlace.ratings" v-bind:data="item"></rating-data> -->
                   </div>
 
-                  <img class="ui right floated image" src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
-                  <br>
+                  <div class="container"></div>
+                  <div class="container"></div>
+
                 </div>
               </div>
-              <div v-show="content === 'statistics'">
-                Statistics
+              <div v-show="content === 'wish'">
+                Wish List
+              </div>
+              <div v-show="content === 'lucky'">
+                I fell lucky section
               </div>
             </div>
           </div>
         </div>
+        <div class="nine wide column" style="right-padding: 0;">
+          <div class="ui sticky segments" id="map-container">
+            <div class="ui segment" id="map-menu">
+              <div class="ui stackable labeled icon secondary menu">
+                <div class="header item">
+                  Compare the Area
+                  <h5>Select the map type <i class="small right arrow icon"></i> </h5>
+                </div>
+                <div class="right menu">
+                  <div class="ui map inverted red button" id="security-btn">
+                    <i class="protect icon"></i> Security
+                  </div>
+                  <div class="ui map inverted green button" id="price-btn">
+                    <i class="dollar icon"></i> Price
+                  </div>
+                  <div class="ui map inverted yellow button" id="distance-btn">
+                    <i class="road icon"></i> Distance
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ui segment" id="map"></div>
+          </div>
+        </div>
       </div>
 
+    </div>
+
+    <div class="ui small modal" id="welcome_modal">
+      <i class="close icon"></i>
+      <div class="header">
+        <h2 style="display: inline">Welcome to your Home Finder!</h2>
+        <p style="font-size: 1em; font-weight: lighter;">Let's find the perfect home for you</p>
+      </div>
+      <div class="image content">
+        <div class="ui medium image">
+          <img src="logo.png">
+        </div>
+        <div class="description">
+          <div class="ui header"></div>
+          <p><h4 style="display: inline">1. Select a map type:</h4>
+            Security heatmap, price by sector or distance radios (every 3 Km from University of Illinois at Chicago)</p>
+          <p><h4 style="display: inline">2. Select an apartment</h4></p>
+          <p><h4 style="display: inline">3. Analyze:</h4> View details and see statistics. Compare apartments and decide</p>
+          <p><h4 style="display: inline">4. Visit the place: </h4>Plan your travel. See the weather forecast and how to get to the apartment you want</p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="ui blue compact message">
+          If you want to see the recomended places with the best security, price and distance ratings, click the star button <i class="small star green icon"></i>.
+          If you want to save your favorite apartments, click the heart button <i class="small heart red icon"></i>
+        </div>
+      </div>
     </div>
 
     <div class="ui modal" id="modal">
@@ -187,31 +230,6 @@
             <h2 style="display: inline; margin-bottom: 10px;">How to get to {{ destinationName }}?</h2>
             <p style="font-size: 1.15em;">Enter an origin location to see the directions to <b>{{ destination }}</b></p>
             <iframe src="directions-map.html" height="350" width="100%" style="border:none;"></iframe>
-            <!-- <input id="origin-input" class="controls" type="text" placeholder="Enter an origin location">
-            <div id="mode-selector" class="controls ui inverted form">
-              <div class="inline fields">
-                <div class="field">
-                  <div class="ui radio checkbox">
-                    <input type="radio" name="type" id="changemode-walking" checked="checked">
-                    <label for="changemode-walking">Walking</label>
-                  </div>
-                </div>
-                <div class="field">
-                  <div class="ui radio checkbox">
-                    <input type="radio" name="type" id="changemode-transit">
-                    <label for="changemode-transit">Transit</label>
-                  </div>
-                </div>
-                <div class="field">
-                  <div class="ui radio checkbox">
-                    <input type="radio" name="type" id="changemode-driving">
-                    <label for="changemode-driving">Driving</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="map2"></div> -->
           </div>
         </div>
       </div>
@@ -220,14 +238,14 @@
     <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=places&callback=initMap2" async defer></script> -->
     <script src="https://maps.google.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=places,visualization"></script>
 
-    <script src="js/map2.js"></script>
     <script src="js/data.js"></script>
     <script src="js/map.js"></script>
     <script src="js/modal.js"></script>
     <script src="js/script.js"></script>
+    <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+    <script src="js/chart.js"></script>
 
 
-    <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA&libraries=visualization"></script> -->
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
   </body>
 </html>

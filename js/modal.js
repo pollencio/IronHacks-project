@@ -33,7 +33,7 @@ xmlhttp2.onreadystatechange = function() {
 Vue.component('weather-forecast', {
   props: ['day'],
   template:
-    `<div class="ui icon purple message">
+    `<div class="ui icon blue message">
       <img class="icon" v-bind:src=day.iconURL></img>
       <div class="content">
         <p>{{ day.date.toDateString() }}</p>

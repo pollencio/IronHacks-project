@@ -4,7 +4,7 @@ var url = "https://data.cityofchicago.org/api/views/s6ha-ppgi/rows.json?accessTy
 var washedData = [];
 
 $.getJSON(url, function( json ) {
-  for (var i = 0; i<20; i++) {
+  for (var i = 0; i<5; i++) {
     var PILurl = 'https://api.placeilive.com/v1/houses/search?ll=' + json.data[i][19] + ',' + json.data[i][20];
     var location = {lat: parseFloat(json.data[i][19]), lng: parseFloat(json.data[i][20])};
     var universityPos = {lat: 41.8708, lng: -87.6505};
@@ -30,6 +30,10 @@ $.getJSON(url, function( json ) {
       travelData: [],
       ratings: []
     };
+
+    //get zillow data
+    var Zurl = 'http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetSearchResults.htm?zws-id=X1-ZWz199gokqk5xn_7oq0o$address=2114+Bigelow+Ave$citystatezip=Seattle%2C+WA';
+
 
     washedData.push(dataLine);
   }
@@ -60,19 +64,7 @@ Vue.component('data-item', {
         dataContainer.activateButton(dataContainer.buttonsList[1]);
       },
       selectPlace: function(dataItem) {
-        dataContainer.selectedPlace = dataItem;
-        modal.destination = dataItem.address;
-        modal.destinationName = dataItem.name;
-        for (var i = 0; i < dataContainer.placesList.length; i++) {
-          if (dataContainer.placesList[i] === dataItem) {
-            dataContainer.placesList[i].state = 'active';
-          } else {
-            dataContainer.placesList[i].state = '';
-          }
-        }
-        var location = {lat: parseFloat(dataItem.latitude), lng: parseFloat(dataItem.longitude)};
-        selectMapPlace(location, map);
-        setTravelTimes(dataItem);
+        selectPlace(dataItem);
       }
     }
 });
@@ -108,7 +100,7 @@ var dataContainer = new Vue({
       {
         name: 'places',
         state: 'active',
-        text: 'Available Places',
+        text: 'Places',
         icon: 'home icon'
       },
       {
@@ -122,6 +114,18 @@ var dataContainer = new Vue({
         state: '',
         text: 'Statistics',
         icon: 'bar chart icon'
+      },
+      {
+        name: 'wish',
+        state: '',
+        text: '',
+        icon: 'heart icon'
+      },
+      {
+        name: 'lucky',
+        state: '',
+        text: '',
+        icon: 'star icon'
       }
     ]
   },
@@ -146,11 +150,44 @@ var dataContainer = new Vue({
         places.push(location);
       }
       return places;
-    },
-    getPlace: function(location) {
-      return this.placesList.filter(function (item) {
-        return item.address == location
-      })
     }
   }
 });
+
+function getPlace(location) {
+  return dataContainer.placesList.filter(function (item) {
+    return item.address == location
+  })
+}
+
+function selectPlace(dataItem) {
+  dataContainer.selectedPlace = dataItem;
+  modal.destination = dataItem.address;
+  modal.destinationName = dataItem.name;
+  for (var i = 0; i < dataContainer.placesList.length; i++) {
+    if (dataContainer.placesList[i] === dataItem) {
+      dataContainer.placesList[i].state = 'active';
+    } else {
+      dataContainer.placesList[i].state = '';
+    }
+  }
+  var location = {lat: parseFloat(dataItem.latitude), lng: parseFloat(dataItem.longitude)};
+  selectMapPlace(location, map, dataItem.name, dataItem.address);
+  setTravelTimes(dataItem);
+}
+
+function getZillowData(Zurl, price) {
+  var Zrequest = new XMLHttpRequest();
+  Zrequest.open("GET", Zurl, true);
+  Zrequest.onreadystatechange = function () {
+    if (Zrequest.readyState == 4 && Zrequest.status == 200)
+    {
+      var xml = Zrequest.responseXML;
+      var x = xml.getElementsByTagName('amount');
+      for(i=0; i<x.length; i++){
+        price = x.item(i).textContent;
+        console.log(price);
+      }
+    }
+  };
+}

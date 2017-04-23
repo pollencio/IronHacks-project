@@ -11,7 +11,7 @@ var shopMarkers = [];
 var crimeMarkers = [];
 
 // Positions
-var universityPos ={lat: 41.85081542, lng: -87.69123528};
+var universityPos = {lat: 41.85081542, lng: -87.69123528};
 var actualPos = {lat: 41.807846, lng: -87.664140};
 
 // Map elements
@@ -120,6 +120,7 @@ $(window).load(function() {
         stylers: [{visibility: 'off'}]
       }
     ],
+
     center: universityPos
   }
   map = new google.maps.Map(document.getElementById("map"), mapOptions);
@@ -168,9 +169,9 @@ $(window).load(function() {
   };
 
   // Controls
-  var centerControlDiv = document.createElement('div');
-  var centerControl = new CenterControl(centerControlDiv, map);
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+  // var centerControlDiv = document.createElement('div');
+  // var centerControl = new CenterControl(centerControlDiv, map);
+  // map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
 
   var showControlDiv = document.createElement('div');
   var showControl = new ShowControl(showControlDiv, map, placeMarkers, 'home', 'Places', 'rgb(149, 91, 165)');
@@ -215,8 +216,7 @@ function setMarkersSODA(url, markers, names, icon) {
             icon: iconURL + icon + '.png'
           });
           google.maps.event.addListener(marker, 'click', function() {
-            infowindow.setContent(entry[names[0]]);
-            infowindow.open(map, marker);
+            setInfoWindow(map, entry[names[0]], marker);
           });
           markers.push(marker);
         });
@@ -230,8 +230,7 @@ function setMarkersSODA(url, markers, names, icon) {
           icon: iconURL + icon + '.png'
         });
         google.maps.event.addListener(marker, 'click', function() {
-          infowindow.setContent(entry[names[0]]);
-          infowindow.open(map, marker);
+          setInfoWindow(map, entry[names[0]], marker);
         });
         markers.push(marker);
       });
@@ -251,8 +250,8 @@ function setPlaceData (markers, icon, array) {
         icon: iconURL + icon + '.png'
       });
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent('<b>'+entry.property_name+'</b><br>'+entry.address);
-        infowindow.open(map, marker);
+        setInfoWindow(map, '<b>'+entry.property_name+'</b><br>'+entry.address, marker);
+        // selectPlace(getPlace(entry.address));
       });
       markers.push(marker);
       // data
@@ -293,8 +292,7 @@ function setCrimeData (markers, icon, array) {
         icon: iconURL + icon + '.png'
       });
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent('<b>'+entry.primary_type+'-'+entry.description+'</b><br>Location: '+entry.location_description+'<br>Date: '+entry.date);
-        infowindow.open(map, marker);
+        setInfoWindow(map, '<b>'+entry.primary_type+'-'+entry.description+'</b><br>Location: '+entry.location_description+'<br>Date: '+entry.date, marker);
       });
       markers.push(marker);
       array.push(location);
@@ -336,8 +334,7 @@ function ShowControl(controlDiv, map, markers, icon, text, color) {
 
   // Set CSS for the control border.
   var controlUI = document.createElement('div');
-  controlUI.style.backgroundColor = color;
-  controlUI.style.border = '2px solid ' + color;
+  controlUI.style.backgroundColor = 'rgb(247, 247, 247)';
   controlUI.style.borderRadius = '3px';
   controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
   controlUI.style.cursor = 'pointer';
@@ -348,11 +345,11 @@ function ShowControl(controlDiv, map, markers, icon, text, color) {
 
   // Set CSS for the control interior.
   var controlText = document.createElement('div');
-  controlText.style.color = 'white';
+  controlText.style.color = '#444444';
   controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-  controlText.style.fontSize = '11px';
+  controlText.style.fontSize = '12px';
   controlText.style.padding = '8px';
-  controlText.innerHTML = '<i class="' + icon + ' icon"></i> Show ' + text;
+  controlText.innerHTML = '<i class="' + icon + ' icon" style="font-size:1.4em"></i>';
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners:
@@ -367,12 +364,14 @@ function ShowControl(controlDiv, map, markers, icon, text, color) {
       markers.forEach(function(marker) {
         marker.setMap(null);
       });
-      controlText.innerHTML = '<i class="' + icon + ' icon"></i> Show ' + text;
+      controlUI.style.backgroundColor = 'rgb(247, 247, 247)';
+      controlText.style.color = '#444444';
     } else {
       markers.forEach(function(marker) {
         marker.setMap(map);
       });
-      controlText.innerHTML = '<i class="' + icon + ' icon"></i> Hide ' + text;
+      controlUI.style.backgroundColor = color;
+      controlText.style.color = 'white';
     }
   });
 }
@@ -383,7 +382,7 @@ function centerMap(location, map) {
   map.setZoom(12);
 };
 
-function selectMapPlace(location, map) {
+function selectMapPlace(location, map, name, address) {
   centerMap(location, map);
   location.lat = location.lat.toFixed(10);
   location.lng = location.lng.toFixed(10);
@@ -392,10 +391,16 @@ function selectMapPlace(location, map) {
     if (mLoc.lat == location.lat && mLoc.lng == location.lng) {
       placeMarker.setIcon(iconURL+'shome.png');
       placeMarker.setMap(map);
+      setInfoWindow(map, '<b>'+name+'</b><br>'+address, placeMarker);
     } else {
       placeMarker.setIcon(iconURL+'home.png');
     }
   })
+}
+
+function setInfoWindow(map, html, marker) {
+  infowindow.setContent(html);
+  infowindow.open(map, marker);
 }
 
 function setTravelTimes(place) {

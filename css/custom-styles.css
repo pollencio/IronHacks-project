@@ -4,9 +4,6 @@
 
 #header {
   background-color: #4679b2;
-}
-
-#header {
   font-family: 'Lobster', cursive;
   font-size: 4em;
   padding: 30px;
@@ -105,4 +102,8 @@ h1 .tagline {
 
 .ui.dropdown {
   margin-bottom: 20px;
+}
+
+.ui.inverted.icon.button {
+  padding-top: 20px;
 }
