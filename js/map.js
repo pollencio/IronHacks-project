@@ -24,7 +24,6 @@ var mapDistanceCircles = [];
 var iconURL = "map_pin_icons/";
 
 $(window).load(function() {
-
   var mapOptions = {
     zoom: 12,
     styles: [
@@ -241,50 +240,6 @@ function setMarkersSODA(url, markers, names, icon) {
 }
 
 function setPlaceData (markers, icon, array) {
-  // $.getJSON("https://data.cityofchicago.org/api/views/s6ha-ppgi/rows.json?accessType=DOWNLOAD", function( json ) {
-  //   for (var i = 0; i<20; i++) {
-  //     // var location = new google.maps.LatLng(parseFloat(json.data[i][19]),parseFloat(json.data[i][19]));
-  //     var location = {lat: parseFloat(json.data[i][19]), lng: parseFloat(json.data[i][20])};
-  //     // Markers
-  //     var marker = new google.maps.Marker({
-  //       position: location,
-  //       map: null,
-  //       title: json.data[i][11],
-  //       icon: iconURL + icon + '.png'
-  //     });
-  //     google.maps.event.addListener(marker, 'click', function() {
-  //       infowindow.setContent('<b>'+json.data[i][11]+'</b><br>'+json.data[i][12]);
-  //       infowindow.open(map, marker);
-  //     });
-  //     markers.push(marker);
-  //     // Data
-  //     var PILurl = 'https://api.placeilive.com/v1/houses/search?ll=' + json.data[i][19] + ',' + json.data[i][20];
-  //
-  //     var dataLine = {
-  //       name: json.data[i][11],
-  //       address: json.data[i][12],
-  //       phone: json.data[i][14],
-  //       type: json.data[i][10],
-  //       number: json.data[i][16],
-  //       area: json.data[i][8],
-  //       company: json.data[i][15],
-  //       latitude: json.data[i][19],
-  //       longitude: json.data[i][20],
-  //       location: location,
-  //       imageURL: 'https://maps.googleapis.com/maps/api/streetview?' +
-  //               'location=' + json.data[i][12] +
-  //               '&size=600x300' +
-  //               '&key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA',
-  //       state: '',
-  //       description: '',
-  //       price: '',
-  //       travelData: [],
-  //       ratings: []
-  //     };
-  //
-  //     array.push(dataLine);
-  //   }
-  // });
   $.getJSON('https://data.cityofchicago.org/resource/uahe-iimk.json', function(data, textstatus) {
     $.each(data, function(i, entry) {
       var location = new google.maps.LatLng(entry.latitude,entry.longitude);
@@ -481,13 +436,19 @@ function setTravelTimes(place) {
           result = response.rows[0].elements[0];
         }
         travelData.push({d: result.distance.text, t: result.duration.text, icon: 'large ' + item.icon + ' icon'});
-        place.ratings.push((result.distance.value / 270).toFixed(1));
+        place.ratings.push((100 - result.distance.value / 270).toFixed(1));
       });
     });
-    var PILurl = 'https://api.placeilive.com/v1/houses/search?ll=' + location.lat + ',' + location.lng;
     place.travelData = travelData;
-    $.getJSON(PILurl, function(data, textstatus) {
-      console.log(data);
-    });
+    // Get PlaceILive Data
+    // var PILurl = 'https://api.placeilive.com/v1/houses/search?ll=' + location.lat + ',' + location.lng;
+    // console.log(PILurl);
+    // $.ajax({
+    //   url: PILurl,
+    //   dataType: "jsonp"
+    // });
+    // function jsonCallback(json){
+    //   console.log(json);
+    // }
   // });
 };

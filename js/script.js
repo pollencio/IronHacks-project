@@ -23,7 +23,7 @@ $('#distance-btn').on('click', function() {
     mapDistanceCircles.forEach(function(circle) {
       circle.setMap(map);
     });
-    map.setZoom(11);
+    map.setZoom(10);
     centerMap(universityPos, map);
   }
 });

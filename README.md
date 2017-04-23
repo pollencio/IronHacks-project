@@ -24,3 +24,7 @@ In addition, graphs will be shown in the "Place information" box with numerical 
 #### Keywords:
 
 Rent houses, Rating, Chicago, Real-time, Position, Price, Distance, Security, University of Illinois at Chicago
+
+#### Application URL:
+
+http://datarips.com/hackaton/

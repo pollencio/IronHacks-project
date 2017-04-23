@@ -47,13 +47,12 @@ Vue.component('data-item', {
         <p>{{ data.address }}</p>
       </div>
       <div class="ui bottom attached buttons">
-        <div class="ui primary button" v-on:click="showVisitWindow(data)"><i class="marker icon"></i> Visit </div>
+        <div class="ui primary button" v-on:click="showVisitWindow()"><i class="marker icon"></i> Visit </div>
         <div class="ui button" v-on:click="showViewDetails(data)">View <i class="right chevron icon"></i></div>
       </div>
     </div>`,
     methods: {
-      showVisitWindow: function(dataItem) {
-        modal.destination = dataItem.address;
+      showVisitWindow: function() {
         $('#modal').modal('show');
       },
       showViewDetails: function(dataItem) {
@@ -61,6 +60,9 @@ Vue.component('data-item', {
         dataContainer.activateButton(dataContainer.buttonsList[1]);
       },
       selectPlace: function(dataItem) {
+        dataContainer.selectedPlace = dataItem;
+        modal.destination = dataItem.address;
+        modal.destinationName = dataItem.name;
         for (var i = 0; i < dataContainer.placesList.length; i++) {
           if (dataContainer.placesList[i] === dataItem) {
             dataContainer.placesList[i].state = 'active';
@@ -68,7 +70,6 @@ Vue.component('data-item', {
             dataContainer.placesList[i].state = '';
           }
         }
-        dataContainer.selectedPlace = dataItem;
         var location = {lat: parseFloat(dataItem.latitude), lng: parseFloat(dataItem.longitude)};
         selectMapPlace(location, map);
         setTravelTimes(dataItem);
@@ -135,8 +136,7 @@ var dataContainer = new Vue({
       }
       this.content = button.name;
     },
-    showVisitWindow: function(dataItem) {
-      modal.destination = dataItem.address;
+    showVisitWindow: function() {
       $('#modal').modal('show');
     },
     getPlacesLocations: function() {
