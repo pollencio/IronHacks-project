@@ -27,13 +27,23 @@ $.getJSON(url, function( json ) {
       state: '',
       description: '',
       price: '',
+      distance: '',
+      security: '',
       travelData: [],
       ratings: []
     };
 
     //get zillow data
     var Zurl = 'http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetSearchResults.htm?zws-id=X1-ZWz199gokqk5xn_7oq0o$address=2114+Bigelow+Ave$citystatezip=Seattle%2C+WA';
+    // setPrice(Zurl, dataLine);
 
+    //get travel data
+    var service = new google.maps.DistanceMatrixService();
+    setTravelTimes(dataLine, service);
+
+    //get security data
+    location = new google.maps.LatLng(location.lat, location.lng);
+    console.log(getNearCrimeNumber(location));
 
     washedData.push(dataLine);
   }
@@ -74,7 +84,7 @@ Vue.component('travel-data-item', {
   template:
     `<div class="column">
       <i v-bind:class="data.icon"></i>
-      {{ data.d }} in {{ data.t }}
+      {{ data.t }}
     </div>`
 });
 
@@ -173,21 +183,92 @@ function selectPlace(dataItem) {
   }
   var location = {lat: parseFloat(dataItem.latitude), lng: parseFloat(dataItem.longitude)};
   selectMapPlace(location, map, dataItem.name, dataItem.address);
-  setTravelTimes(dataItem);
 }
 
-function getZillowData(Zurl, price) {
+function setPrice(Zurl, place) {
   var Zrequest = new XMLHttpRequest();
   Zrequest.open("GET", Zurl, true);
+  console.log(Zrequest.readyState + ' ' + Zrequest.status);
   Zrequest.onreadystatechange = function () {
-    if (Zrequest.readyState == 4 && Zrequest.status == 200)
-    {
+    if (Zrequest.readyState == 4 && Zrequest.status == 200) {
       var xml = Zrequest.responseXML;
       var x = xml.getElementsByTagName('amount');
-      for(i=0; i<x.length; i++){
-        price = x.item(i).textContent;
-        console.log(price);
+      for(i=0; i<x.length; i++) {
+        console.log(x.item(i).textContent);
+        place.price = x.item(i).textContent;
       }
     }
   };
+}
+
+function setTravelTimes(place, service) {
+  var list = [
+    {
+      mode: 'DRIVING',
+      icon: 'car'
+    },
+    {
+      mode: 'TRANSIT',
+      icon: 'subway'
+    },
+    {
+      mode: 'WALKING',
+      icon: 'street view'
+    },
+    {
+      mode: 'BICYCLING',
+      icon: 'bicycle'
+    }
+  ];
+  var location = place.location;
+  var travelData = [];
+  list.forEach(function(item) {
+    service.getDistanceMatrix({
+      origins: [{lat: 41.85081542, lng: -87.69123528}],
+      destinations: [location],
+      travelMode: item.mode,
+      transitOptions: {
+        modes: ['SUBWAY']
+      }
+    }, function(response, status) {
+      var result;
+      if (status !== 'OK') {
+        alert('Error was: ' + status);
+      } else {
+        result = response.rows[0].elements[0];
+      }
+      travelData.push({d: result.distance.text, t: result.duration.text, icon: 'large ' + item.icon + ' icon'});
+      // place.ratings.push((100 - result.distance.value / 270).toFixed(1));
+    });
+  });
+  place.travelData = travelData;
+  var p1 = new google.maps.LatLng(41.85081542, -87.69123528);
+  var p2 = new google.maps.LatLng(location.lat, location.lng);
+  distance = getDistance(p1, p2);
+  place.distance = distance + 'Km';
+  place.ratings.push((100 - distance / 0.270).toFixed(1));
+};
+
+var rad = function(x) { return x * Math.PI / 180; };
+
+function getDistance(p1, p2) {
+  var R = 6378137; // Earth’s mean radius in meter
+  var dLat = rad(p2.lat() - p1.lat());
+  var dLong = rad(p2.lng() - p1.lng());
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(p1.lat())) * Math.cos(rad(p2.lat())) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c / 1000;
+  return d.toFixed(2); // returns the distance in meter
+}
+
+function getNearCrimeNumber(apartmentLocation) {
+  var count = 0;
+  crimesData.forEach(function(crimeLocation) {
+    console.log('crime: ' + crimeLocation.lat() + ', ' + crimeLocation.lng());
+    console.log('apartment: ' + apartmentLocation.lat() + ', ' + apartmentLocation.lng());
+    if(getDistance(apartmentLocation, crimeLocation) <= 2) {
+      count ++;
+    }
+  });
+  return count;
 }

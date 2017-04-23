@@ -19,6 +19,7 @@ var map;
 var service;
 var securityHeatmap;
 var mapDistanceCircles = [];
+var Acircle;
 
 // Icon url
 var iconURL = "map_pin_icons/";
@@ -126,7 +127,7 @@ $(window).load(function() {
   map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
   infowindow = new google.maps.InfoWindow({ content: '' });
-  service = new google.maps.DistanceMatrixService();
+  // service = new google.maps.DistanceMatrixService();
 
   // Set markers
   setMarkersSODA('9rg7-mz9y.json', policeMarkers, ['district_name','latitude','longitude'], 'police');
@@ -140,11 +141,11 @@ $(window).load(function() {
   marker = new google.maps.Marker({
     position: universityPos,
     map: map,
-    title: 'University of Illinois in Chicago',
+    title: 'University of Illinois at Chicago',
     icon: iconURL+'college.png'
   });
   google.maps.event.addListener(marker, 'click', function() {
-    infowindow.setContent('University of Illinois in Chicago');
+    infowindow.setContent('<b>University of Illinois at Chicago</b><br>Department of Computer Science');
     infowindow.open(map, marker);
   });
 
@@ -167,11 +168,21 @@ $(window).load(function() {
     });
     mapDistanceCircles.push(circle);
   };
+  Acircle = new google.maps.Circle({
+    strokeColor: '#085166',
+    strokeOpacity: 0.2,
+    strokeWeight: 1,
+    fillColor: '#d43bc9',
+    fillOpacity: 0.3,
+    map: null,
+    center: new google.maps.LatLng(0, 0),
+    radius: 2000
+  });
 
   // Controls
-  // var centerControlDiv = document.createElement('div');
-  // var centerControl = new CenterControl(centerControlDiv, map);
-  // map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+  var centerControlDiv = document.createElement('div');
+  var centerControl = new CenterControl(centerControlDiv, map);
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
 
   var showControlDiv = document.createElement('div');
   var showControl = new ShowControl(showControlDiv, map, placeMarkers, 'home', 'Places', 'rgb(149, 91, 165)');
@@ -251,31 +262,8 @@ function setPlaceData (markers, icon, array) {
       });
       google.maps.event.addListener(marker, 'click', function() {
         setInfoWindow(map, '<b>'+entry.property_name+'</b><br>'+entry.address, marker);
-        // selectPlace(getPlace(entry.address));
       });
       markers.push(marker);
-      // data
-      var dataLine = {
-        name: entry.property_name,
-        address: entry.address,
-        units: entry.units,
-        phone: entry.phone_number,
-        company: entry.management_company,
-        area: entry.community_area,
-        type: entry.property_type,
-        latitude: location.lat(),
-        longitude: location.lng(),
-        location: location,
-        imageURL: 'https://maps.googleapis.com/maps/api/streetview?' +
-                'location=' + entry.address +
-                '&size=600x300' +
-                '&key=AIzaSyDip7CRroRr9Aui972KlJZ2MKr7P-U20PA',
-        state: '',
-        price: '',
-        travelData: [],
-        ratings: []
-      };
-      array.push(dataLine);
     });
   });
 }
@@ -295,7 +283,7 @@ function setCrimeData (markers, icon, array) {
         setInfoWindow(map, '<b>'+entry.primary_type+'-'+entry.description+'</b><br>Location: '+entry.location_description+'<br>Date: '+entry.date, marker);
       });
       markers.push(marker);
-      array.push(location);
+      array.push({lat: location.lat(), lng: location.lng()});
     });
   });
 }
@@ -366,12 +354,18 @@ function ShowControl(controlDiv, map, markers, icon, text, color) {
       });
       controlUI.style.backgroundColor = 'rgb(247, 247, 247)';
       controlText.style.color = '#444444';
+      if(text === 'Places') {
+        Acircle.setMap(null);
+      }
     } else {
       markers.forEach(function(marker) {
         marker.setMap(map);
       });
       controlUI.style.backgroundColor = color;
       controlText.style.color = 'white';
+      if(text === 'Places') {
+        Acircle.setMap(map);
+      }
     }
   });
 }
@@ -384,6 +378,9 @@ function centerMap(location, map) {
 
 function selectMapPlace(location, map, name, address) {
   centerMap(location, map);
+  var latlng = new google.maps.LatLng(location.lat, location.lng);
+  Acircle.setCenter(latlng);
+  Acircle.setMap(map);
   location.lat = location.lat.toFixed(10);
   location.lng = location.lng.toFixed(10);
   placeMarkers.forEach(function(placeMarker) {
@@ -403,57 +400,19 @@ function setInfoWindow(map, html, marker) {
   infowindow.open(map, marker);
 }
 
-function setTravelTimes(place) {
-  var list = [
-    {
-      mode: 'DRIVING',
-      icon: 'car'
-    },
-    {
-      mode: 'TRANSIT',
-      icon: 'subway'
-    },
-    {
-      mode: 'WALKING',
-      icon: 'street view'
-    },
-    {
-      mode: 'BICYCLING',
-      icon: 'bicycle'
+function routeApartment(map, address) {
+  directionsService = new google.maps.DirectionsService;
+  directionsDisplay = new google.maps.DirectionsRenderer;
+  directionsDisplay.setMap(map);
+  directionsService.route({
+    origin: {address},
+    destination: {universityPos},
+    travelMode: 'DRIVING'
+  }, function(response, status) {
+    if (status === 'OK') {
+      directionsDisplay.setDirections(response);
+    } else {
+      window.alert('Directions request failed due to ' + status);
     }
-  ];
-  // placesList.forEach(function(place) {
-    var location = place.location;
-    var travelData = [];
-    list.forEach(function(item) {
-      service.getDistanceMatrix({
-        origins: [universityPos],
-        destinations: [location],
-        travelMode: item.mode,
-        transitOptions: {
-          modes: ['SUBWAY']
-        }
-      }, function(response, status) {
-        var result;
-        if (status !== 'OK') {
-          alert('Error was: ' + status);
-        } else {
-          result = response.rows[0].elements[0];
-        }
-        travelData.push({d: result.distance.text, t: result.duration.text, icon: 'large ' + item.icon + ' icon'});
-        place.ratings.push((100 - result.distance.value / 270).toFixed(1));
-      });
-    });
-    place.travelData = travelData;
-    // Get PlaceILive Data
-    // var PILurl = 'https://api.placeilive.com/v1/houses/search?ll=' + location.lat + ',' + location.lng;
-    // console.log(PILurl);
-    // $.ajax({
-    //   url: PILurl,
-    //   dataType: "jsonp"
-    // });
-    // function jsonCallback(json){
-    //   console.log(json);
-    // }
-  // });
-};
+  });
+}

@@ -10,10 +10,20 @@ $(document).on('ready', function() {
 
   // $('#welcome_modal').modal('show');
 
-  // var Zurl = 'http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetSearchResults.htm?zws-id=X1-ZWz199gokqk5xn_7oq0o$address=2114+Bigelow+Ave$citystatezip=Seattle%2C+WA';
-  // var price;
-  // getZillowData(Zurl, price);
-  // console.log(price);
+  var Zrequest = new XMLHttpRequest();
+  var Zurl = 'http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetSearchResults.htm?zws-id=X1-ZWz199gokqk5xn_7oq0o$address=2114+Bigelow+Ave$citystatezip=Seattle%2C+WA';
+  Zrequest.open("GET", Zurl, true);
+  Zrequest.onreadystatechange = function () {
+    if (Zrequest.readyState == 4 && Zrequest.status == 200) {
+      var xml = Zrequest.responseXML;
+      var x = xml.getElementsByTagName('amount');
+      for(i=0; i<x.length; i++) {
+        console.log(x.item(i).textContent);
+      }
+    }
+  };
+
+
 
 });
 
